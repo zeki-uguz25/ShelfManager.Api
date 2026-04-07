@@ -1,0 +1,6 @@
+@ShelfManager.Api_HostAddress = http://localhost:5110
+
+GET {{ShelfManager.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
