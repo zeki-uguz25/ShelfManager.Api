@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
+using ShelfManager.Persistence.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,15 @@ namespace ShelfManager.Persistence
         {
             services.AddDbContext<ShelfManagerDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IUserBookRepository, UserBookRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IFineRepository, FineRepository>();
 
             return services;
         }

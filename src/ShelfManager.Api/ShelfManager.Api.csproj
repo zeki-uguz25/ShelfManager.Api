@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ShelfManager.Application\ShelfManager.Application.csproj" />
     <ProjectReference Include="..\ShelfManager.Persistence\ShelfManager.Persistence.csproj" />
   </ItemGroup>
 

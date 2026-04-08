@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ShelfManager.Domain\ShelfManager.Domain.csproj" />
+    <ProjectReference Include="..\ShelfManager.Application\ShelfManager.Application.csproj" />
   </ItemGroup>
 
 </Project>

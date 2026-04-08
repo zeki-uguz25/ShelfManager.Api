@@ -9,7 +9,16 @@
   <ItemGroup>
     <Folder Include="Abstractions\Services\" />
     <Folder Include="Abstractions\Repositories\" />
-    <Folder Include="Handlers\" />
+    <Folder Include="Handlers\Books\Commands\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\core\Core.Persistence\Core.Persistence.csproj" />
+    <ProjectReference Include="..\ShelfManager.Domain\ShelfManager.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.1.0" />
   </ItemGroup>
 
 </Project>
