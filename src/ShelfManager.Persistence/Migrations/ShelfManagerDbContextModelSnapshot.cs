@@ -156,6 +156,22 @@ namespace ShelfManager.Persistence.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("ShelfManager.Domain.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("ShelfManager.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -170,6 +186,27 @@ namespace ShelfManager.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("ShelfManager.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("ShelfManager.Domain.Entities.User", b =>
@@ -241,9 +278,6 @@ namespace ShelfManager.Persistence.Migrations
 
                     b.Property<int?>("Rating")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ReturnDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ReturnDeadline")
                         .HasColumnType("timestamp with time zone");
@@ -322,6 +356,25 @@ namespace ShelfManager.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ShelfManager.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("ShelfManager.Domain.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShelfManager.Domain.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("ShelfManager.Domain.Entities.UserBook", b =>
                 {
                     b.HasOne("ShelfManager.Domain.Entities.Book", "Book")
@@ -370,8 +423,15 @@ namespace ShelfManager.Persistence.Migrations
                     b.Navigation("Books");
                 });
 
+            modelBuilder.Entity("ShelfManager.Domain.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("ShelfManager.Domain.Entities.Role", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("UserRoles");
                 });
 

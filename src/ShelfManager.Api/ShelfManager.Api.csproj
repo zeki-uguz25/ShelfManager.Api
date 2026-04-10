@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ShelfManager.Application\ShelfManager.Application.csproj" />
     <ProjectReference Include="..\ShelfManager.Persistence\ShelfManager.Persistence.csproj" />
+    <ProjectReference Include="..\ShelfManager.Infrastructure\ShelfManager.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

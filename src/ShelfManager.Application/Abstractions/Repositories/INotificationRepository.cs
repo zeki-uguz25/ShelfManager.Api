@@ -5,4 +5,5 @@ namespace ShelfManager.Application.Abstractions.Repositories;
 
 public interface INotificationRepository : IRepository<Notification>
 {
+    Task<IEnumerable<Notification>> GetAllByUserIdAsync(Guid userId);
 }

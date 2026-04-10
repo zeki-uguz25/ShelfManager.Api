@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.*" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShelfManager.Application\ShelfManager.Application.csproj" />
+    <ProjectReference Include="..\ShelfManager.Domain\ShelfManager.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

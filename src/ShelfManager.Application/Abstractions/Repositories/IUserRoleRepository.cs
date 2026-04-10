@@ -5,4 +5,6 @@ namespace ShelfManager.Application.Abstractions.Repositories;
 
 public interface IUserRoleRepository : IRepository<UserRole>
 {
+    Task<IEnumerable<UserRole>> GetByUserIdAsync(Guid userId);
+
 }

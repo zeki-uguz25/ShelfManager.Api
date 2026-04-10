@@ -23,6 +23,8 @@ namespace ShelfManager.Persistence.Context
         public DbSet<UserBook> UserBooks { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Fine> Fines { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

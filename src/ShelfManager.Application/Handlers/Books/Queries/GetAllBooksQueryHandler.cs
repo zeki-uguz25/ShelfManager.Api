@@ -39,10 +39,10 @@ public class GetAllBooksQuery
         }
 
         public async Task<IEnumerable<GetAllBooksQueryResponse>> Handle(GetAllBooksQueryRequest request, CancellationToken cancellationToken)
-        {
+        {//response da bir liste döndüğü için response geçen her yerde IEnumerable kullandık
             var books = await _bookRepository.GetAllAsync();//tüm kitapları db den çeker.
 
-            return books.Select(x => new GetAllBooksQueryResponse
+            return books.Select(x => new GetAllBooksQueryResponse //Response da birden fazla dğer döndüğü için yani bir liste burda select kullandık.
             {//her book entitiy si response dönüştürülür. Buna mapping denir.
                 Id = x.Id,
                 Name = x.Name,

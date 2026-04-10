@@ -8,7 +8,7 @@ public class EFEntityBaseRepository<T, TContext> : IRepository<T>//Amacı bu kod
     where TContext : DbContext//BookRepository : EFEntityBaseRepository<Book,
                               //ShelfManagerDbContext> diyince T=Book, TContext=ShelfManagerDbContext
 {
-    private readonly TContext _context;//repolar veritabanı ile ilgili işlemleri yürütür.
+    protected readonly TContext _context;//repolar veritabanı ile ilgili işlemleri yürütür.
 
     public EFEntityBaseRepository(TContext context)
     {
