@@ -1,3 +1,6 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
@@ -16,19 +19,22 @@ namespace ShelfManager.Application.Handlers.Roles.Commands
     public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommandRequest, DeleteRoleCommandResponse>
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteRoleCommandHandler(IRoleRepository roleRepository)
+        public DeleteRoleCommandHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
         {
             _roleRepository = roleRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<DeleteRoleCommandResponse> Handle(DeleteRoleCommandRequest request, CancellationToken cancellationToken)
         {
             var role = await _roleRepository.GetByIdAsync(request.Id);
             if (role == null)
-                throw new Exception("Rol bulunamadı.");
+                throw new NotFoundException(ExceptionsResources.RoleNotFound);
 
             await _roleRepository.DeleteAsync(role);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new DeleteRoleCommandResponse { Message = "Rol silindi." };
         }

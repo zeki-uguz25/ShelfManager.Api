@@ -1,10 +1,7 @@
-﻿using MediatR;
+﻿using Core.Exception.Exceptions;
+using Core.Exception.Resources;
+using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShelfManager.Application.Handlers.Categories.Queries
 {
@@ -32,7 +29,7 @@ namespace ShelfManager.Application.Handlers.Categories.Queries
             var category = await _categoryRepository.GetByIdAsync(request.Id);
             if (category == null)
             {
-                throw new Exception("Kategori bulunamadı");
+                throw new NotFoundException(ExceptionsResources.CategoryNotFound);
             }
             return new GetCategoryByIdQueryResponse
             {

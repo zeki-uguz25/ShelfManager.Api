@@ -17,7 +17,7 @@ public class TokenService : ITokenService
         _configuration = configuration;
     }
 
-    public string GenerateToken(User user, IList<string> roles)
+    public string GenerateToken(User user, IList<string> roles, IList<string> permissions)
     {
         var secretKey = _configuration["JwtSettings:SecretKey"]!;
         var issuer = _configuration["JwtSettings:Issuer"]!;
@@ -36,6 +36,9 @@ public class TokenService : ITokenService
 
         foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
+
+        foreach (var permission in permissions)
+            claims.Add(new Claim("permission", permission));
 
         var token = new JwtSecurityToken(
             issuer: issuer,

@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShelfManager.Application.Handlers.UserBooks.Commands;
 using ShelfManager.Application.Handlers.UserBooks.Queries;
+using ShelfManager.Domain.Constants;
 
 namespace ShelfManager.Api.Controllers
 {
@@ -18,6 +20,7 @@ namespace ShelfManager.Api.Controllers
         }
 
         [HttpPost("{bookId}")]
+        [Authorize]
         public async Task<IActionResult> BorrowBook( [FromRoute] Guid bookId)
         {
             var result = await _mediator.Send(new BorrowBookCommandRequest { BookId = bookId });
@@ -25,6 +28,7 @@ namespace ShelfManager.Api.Controllers
         }
 
         [HttpPut("{id}/return")]
+        [Authorize]
         public async Task<IActionResult> ReturnBook([FromRoute] Guid id, [FromBody] ReturnBookCommandRequest request)
         {
             request.Id= id;
@@ -32,6 +36,7 @@ namespace ShelfManager.Api.Controllers
             return Ok(result);
         }
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllUserBooks()
         {
             var result = await _mediator.Send(new GetUserBooksQueryRequest ());

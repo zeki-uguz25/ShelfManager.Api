@@ -13,11 +13,15 @@ namespace ShelfManager.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {
-            builder.HasKey(x=> x.Id);
+            builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Code)
+                .IsRequired()
+                .HasMaxLength(50);
 
             builder.Property(x => x.Name)
                 .IsRequired()
-                .HasMaxLength(50); ;
+                .HasMaxLength(50);
 
             
         }

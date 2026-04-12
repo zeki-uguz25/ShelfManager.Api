@@ -1,15 +1,55 @@
+using Core.Exception;
+using Microsoft.OpenApi.Models;
+using Serilog;
 using ShelfManager.Application;
 using ShelfManager.Infrastructure;
 using ShelfManager.Persistence;
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services);
+});
 
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Token'Ä± girin. Ã–rnek: eyJhbGci..."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
@@ -25,8 +65,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseAuthentication();// gelen isteðin header'ýndaki token'ý okur, doðrular, kullanýcýyý tanýmlar. Biz sadece "JWT kullanacaðýz" dedik (AddJwtBearer), gerisini framework hallediyor.
-app.UseAuthorization();//kullanýcýnýn tanýmlandýktan sonra o endpoint'e eriþim yetkisi var mý kontrol eder. [Authorize] attribute'u bunu kullanýr.
+app.UseSerilogRequestLogging();
+app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseAuthentication();// gelen isteï¿½in header'ï¿½ndaki token'ï¿½ okur, doï¿½rular, kullanï¿½cï¿½yï¿½ tanï¿½mlar. Biz sadece "JWT kullanacaï¿½ï¿½z" dedik (AddJwtBearer), gerisini framework hallediyor.
+app.UseAuthorization();//kullanï¿½cï¿½nï¿½n tanï¿½mlandï¿½ktan sonra o endpoint'e eriï¿½im yetkisi var mï¿½ kontrol eder. [Authorize] attribute'u bunu kullanï¿½r.
 app.UseHttpsRedirection();
 
 

@@ -1,11 +1,6 @@
-﻿using MediatR;
+using Core.Persistence.EntityFrameworkCore.Pagination;
+using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShelfManager.Application.Handlers.Categories.Queries
 {
@@ -14,11 +9,12 @@ namespace ShelfManager.Application.Handlers.Categories.Queries
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
     }
-    public class GetAllCategoryQueryRequest : IRequest<IEnumerable<GetAllCategoryQueryResponse>> 
+
+    public class GetAllCategoryQueryRequest : PagedRequest, IRequest<PagedList<GetAllCategoryQueryResponse>>
     {
-        //Response liste olduğu için tüm responselerden önce IEnumerable ekledik
     }
-    public class GetAllCategoryQueryHandler : IRequestHandler<GetAllCategoryQueryRequest, IEnumerable<GetAllCategoryQueryResponse>>
+
+    public class GetAllCategoryQueryHandler : IRequestHandler<GetAllCategoryQueryRequest, PagedList<GetAllCategoryQueryResponse>>
     {
         private readonly ICategoryRepository _categoryRepository;
 
@@ -27,16 +23,21 @@ namespace ShelfManager.Application.Handlers.Categories.Queries
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<IEnumerable< GetAllCategoryQueryResponse>> Handle(GetAllCategoryQueryRequest request,CancellationToken cancellationToken)
+        public async Task<PagedList<GetAllCategoryQueryResponse>> Handle(GetAllCategoryQueryRequest request, CancellationToken cancellationToken)
         {
-            var categories = await _categoryRepository.GetAllAsync();
+            var paged = await _categoryRepository.GetPagedAsync(request.PageNumber, request.PageSize);
 
-            return categories.Select(x => new GetAllCategoryQueryResponse
+            return new PagedList<GetAllCategoryQueryResponse>
             {
-                Id = x.Id,
-                Name = x.Name
-            });
+                Items = paged.Items.Select(x => new GetAllCategoryQueryResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToList(),
+                TotalCount = paged.TotalCount,
+                PageNumber = paged.PageNumber,
+                PageSize = paged.PageSize
+            };
         }
-
     }
 }

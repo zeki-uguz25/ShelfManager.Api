@@ -1,3 +1,5 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
@@ -20,7 +22,7 @@ namespace ShelfManager.Application.Handlers.Fines.Queries
     {
         private readonly IFineRepository _fineRepository;
         private readonly IUserRepository _userRepository;
-        IAuthService _authService;
+        private readonly IAuthService _authService;
 
         public GetUserFinesQueryHandler(IFineRepository fineRepository, IUserRepository userRepository, IAuthService authService)
         {
@@ -32,8 +34,6 @@ namespace ShelfManager.Application.Handlers.Fines.Queries
         public async Task<IEnumerable<GetUserFinesQueryResponse>> Handle(GetUserFinesQueryRequest request, CancellationToken cancellationToken)
         {
             var userId = _authService.GetCurrentUserId();
-            
-
             var fines = await _fineRepository.GetAllByUserIdAsync(userId);
 
             return fines.Select(x => new GetUserFinesQueryResponse

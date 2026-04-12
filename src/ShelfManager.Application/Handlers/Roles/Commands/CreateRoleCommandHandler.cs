@@ -1,5 +1,10 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
+using FluentValidation;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
+using ShelfManager.Application.Handlers.Roles.Resources;
 using ShelfManager.Domain.Entities;
 
 namespace ShelfManager.Application.Handlers.Roles.Commands
@@ -15,20 +20,32 @@ namespace ShelfManager.Application.Handlers.Roles.Commands
         public string Name { get; set; } = null!;
     }
 
+    public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommandRequest>
+    {
+        public CreateRoleCommandValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage(_ => ValidationMessages.Name_Required)
+                .MaximumLength(100).WithMessage(_ => ValidationMessages.Name_MaxLength);
+        }
+    }
+
     public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommandRequest, CreateRoleCommandResponse>
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateRoleCommandHandler(IRoleRepository roleRepository)
+        public CreateRoleCommandHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
         {
             _roleRepository = roleRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CreateRoleCommandResponse> Handle(CreateRoleCommandRequest request, CancellationToken cancellationToken)
         {
             var existing = await _roleRepository.GetByNameAsync(request.Name);
             if (existing != null)
-                throw new Exception("Bu isimde bir rol zaten mevcut.");
+                throw new BusinessException(ExceptionsResources.RoleAlreadyExists);
 
             var role = new Role
             {
@@ -37,6 +54,7 @@ namespace ShelfManager.Application.Handlers.Roles.Commands
             };
 
             await _roleRepository.AddAsync(role);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new CreateRoleCommandResponse
             {

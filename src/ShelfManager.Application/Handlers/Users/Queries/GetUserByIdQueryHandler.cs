@@ -1,3 +1,5 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
@@ -33,7 +35,7 @@ namespace ShelfManager.Application.Handlers.Users.Queries
         {
             var user = await _userRepository.GetByIdAsync(request.Id);
             if (user == null)
-                throw new Exception("Kullanıcı bulunamadı.");
+                throw new NotFoundException(ExceptionsResources.UserNotFound);
 
             return new GetUserByIdQueryResponse
             {

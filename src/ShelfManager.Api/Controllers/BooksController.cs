@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShelfManager.Application.Handlers.Books.Queries;
 using ShelfManager.Domain.Constants;
 using ShelfManager.Domain.Entities;
 using static ShelfManager.Application.Handlers.Books.Commands.CreateBookCommand;
@@ -23,12 +24,18 @@ namespace ShelfManager.Api.Controllers
             _mediator = mediator;
         }
 
+        
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _mediator.Send(new GetAllBooksQueryRequest());
+            var result = await _mediator.Send(new GetAllBooksQueryRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
             return Ok(result);
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
@@ -36,6 +43,14 @@ namespace ShelfManager.Api.Controllers
             var result = await _mediator.Send(new GetBookByIdQueryRequest { Id = id }); //Burda requeste swagger da girdiğimiz değer veriliyor ve işlem controllerdan çıkıyor.
             return Ok(result);
         }
+
+        [HttpGet("category/{categoryId}")]
+        public async Task<IActionResult> GetBooksByCategory([FromRoute] Guid categoryId)
+        {
+            var result = await _mediator.Send(new GetBooksByCategoryQueryRequest { CategoryId = categoryId });
+            return Ok(result);
+        }
+
 
         [HttpPost]
         [Authorize(Policy = Permissions.Books.Create)]
@@ -61,6 +76,8 @@ namespace ShelfManager.Api.Controllers
             await _mediator.Send(new DeleteBookCommandRequest { Id = id });
             return NoContent();
         }
+
+
 
     }
 }

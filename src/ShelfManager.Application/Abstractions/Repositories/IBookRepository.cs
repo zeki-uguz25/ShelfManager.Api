@@ -5,4 +5,5 @@ namespace ShelfManager.Application.Abstractions.Repositories;
 
 public interface IBookRepository : IRepository<Book>
 {
+    Task<IEnumerable<Book>> GetBooksByCategory(Guid categoryId);
 }

@@ -1,11 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ShelfManager.Domain.Entities;
-using ShelfManager.Persistence.Configurations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShelfManager.Persistence.Context
 {
@@ -28,19 +22,7 @@ namespace ShelfManager.Persistence.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            #region Configuration
-            //modelBuilder.ApplyConfiguration(new UserConfiguration());
-            //modelBuilder.ApplyConfiguration(new NotificationConfiguration());
-            //modelBuilder.ApplyConfiguration(new FineConfiguration());
-            //modelBuilder.ApplyConfiguration(new BookConfiguration());
-            //modelBuilder.ApplyConfiguration(new UserBookConfiguration());
-            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            //modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
-            //modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-            #endregion
-
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShelfManagerDbContext).Assembly);
-
             base.OnModelCreating(modelBuilder);
         }
     }

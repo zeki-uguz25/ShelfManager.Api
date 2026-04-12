@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Persistence.EntityFrameworkCore.Pagination;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Core.Persistence.EntityFrameworkCore.BaseRepositories
         Task AddAsync(T entity);                   // Yeni kayıt ekler
         Task UpdateAsync(T entity);                // Mevcut kaydı günceller
         Task DeleteAsync(T entity);                // Kaydı siler
+        Task<PagedList<T>> GetPagedAsync(int pageNumber, int pageSize);
+
     }
 
 }

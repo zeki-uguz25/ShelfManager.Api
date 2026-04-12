@@ -1,3 +1,5 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
@@ -20,13 +22,11 @@ namespace ShelfManager.Application.Handlers.Notifications.Queries
     public class GetUserNotificationsQueryHandler : IRequestHandler<GetUserNotificationsQueryRequest, IEnumerable<GetUserNotificationsQueryResponse>>
     {
         private readonly INotificationRepository _notificationRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IAuthService _authService;
 
-        public GetUserNotificationsQueryHandler(INotificationRepository notificationRepository, IUserRepository userRepository, IAuthService authService)
+        public GetUserNotificationsQueryHandler(INotificationRepository notificationRepository, IAuthService authService)
         {
             _notificationRepository = notificationRepository;
-            _userRepository = userRepository;
             _authService = authService;
         }
 

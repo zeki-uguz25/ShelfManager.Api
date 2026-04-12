@@ -1,11 +1,9 @@
-﻿using MediatR;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
+using FluentValidation;
+using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
+using ShelfManager.Application.Handlers.Categories.Resources;
 using ShelfManager.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShelfManager.Application.Handlers.Categories.Commands
 {
@@ -19,13 +17,25 @@ namespace ShelfManager.Application.Handlers.Categories.Commands
         public string Name { get; set; } = null!;
     }
 
+    public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommandRequest>
+    {
+        public CreateCategoryCommandValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage(_ => ValidationMessages.Name_Required)
+                .MaximumLength(100).WithMessage(_ => ValidationMessages.Name_MaxLength);
+        }
+    }
+
     public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommandRequest, CreateCategoryCommandResponse>
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository)
+        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
         {
             _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CreateCategoryCommandResponse> Handle(CreateCategoryCommandRequest request, CancellationToken cancellationToken)
@@ -37,12 +47,9 @@ namespace ShelfManager.Application.Handlers.Categories.Commands
             };
 
             await _categoryRepository.AddAsync(category);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new CreateCategoryCommandResponse
-            {
-                Id = category.Id
-            };
-
+            return new CreateCategoryCommandResponse { Id = category.Id };
         }
     }
 }

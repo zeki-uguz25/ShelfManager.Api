@@ -1,3 +1,4 @@
+using Core.Persistence.EntityFrameworkCore.Pagination;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
@@ -14,11 +15,11 @@ namespace ShelfManager.Application.Handlers.Users.Queries
         public DateTime CreatedAt { get; set; }
     }
 
-    public class GetAllUsersQueryRequest : IRequest<IEnumerable<GetAllUsersQueryResponse>>
+    public class GetAllUsersQueryRequest : PagedRequest, IRequest<PagedList<GetAllUsersQueryResponse>>
     {
     }
 
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQueryRequest, IEnumerable<GetAllUsersQueryResponse>>
+    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQueryRequest, PagedList<GetAllUsersQueryResponse>>
     {
         private readonly IUserRepository _userRepository;
 
@@ -27,20 +28,26 @@ namespace ShelfManager.Application.Handlers.Users.Queries
             _userRepository = userRepository;
         }
 
-        public async Task<IEnumerable<GetAllUsersQueryResponse>> Handle(GetAllUsersQueryRequest request, CancellationToken cancellationToken)
+        public async Task<PagedList<GetAllUsersQueryResponse>> Handle(GetAllUsersQueryRequest request, CancellationToken cancellationToken)
         {
-            var users = await _userRepository.GetAllAsync();
+            var paged = await _userRepository.GetPagedAsync(request.PageNumber, request.PageSize);
 
-            return users.Select(x => new GetAllUsersQueryResponse
+            return new PagedList<GetAllUsersQueryResponse>
             {
-                Id = x.Id,
-                FullName = x.FullName,
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber,
-                IsBanned = x.IsBanned,
-                IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt
-            });
+                Items = paged.Items.Select(x => new GetAllUsersQueryResponse
+                {
+                    Id = x.Id,
+                    FullName = x.FullName,
+                    Email = x.Email,
+                    PhoneNumber = x.PhoneNumber,
+                    IsBanned = x.IsBanned,
+                    IsActive = x.IsActive,
+                    CreatedAt = x.CreatedAt
+                }).ToList(),
+                TotalCount = paged.TotalCount,
+                PageNumber = paged.PageNumber,
+                PageSize = paged.PageSize
+            };
         }
     }
 }

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/90505/source/repos/ShelfManager.Api/**)"
+    ]
+  }
+}

@@ -24,6 +24,7 @@ namespace ShelfManager.Domain.Constants
         public static class Users
         {
             public const string Ban = "users.ban";
+            public const string GetUser = "users.get";
         }
 
         public static class Roles

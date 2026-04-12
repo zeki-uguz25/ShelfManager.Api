@@ -1,10 +1,7 @@
-﻿using MediatR;
+﻿using Core.Exception.Exceptions;
+using Core.Exception.Resources;
+using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShelfManager.Application.Handlers.Books.Queries
 {
@@ -43,7 +40,7 @@ namespace ShelfManager.Application.Handlers.Books.Queries
             public async Task<GetBookByIdQueryResponse?> Handle(GetBookByIdQueryRequest request, CancellationToken cancellationToken)
             {
                 var book = await _bookRepository.GetByIdAsync(request.Id);
-                if (book == null) throw new Exception("Kitap bulunamadı");
+                if (book == null) throw new NotFoundException(ExceptionsResources.BookNotFound);
 
                 //return book.Select(x => new GetBookByIdQueryResponse
                 //birden fazla book listelenseydi yukardaki gibi yazacaktık

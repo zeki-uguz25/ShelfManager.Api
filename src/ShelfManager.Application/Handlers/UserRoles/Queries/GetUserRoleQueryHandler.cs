@@ -1,3 +1,5 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
@@ -29,12 +31,12 @@ namespace ShelfManager.Application.Handlers.UserRoles.Queries
         {
             var user = await _userRepository.GetByIdAsync(request.UserId);
             if (user == null)
-                throw new Exception("Kullanıcı bulunamadı.");
+                throw new NotFoundException(ExceptionsResources.UserNotFound);
 
             var userRoles = await _userRoleRepository.GetByUserIdAsync(request.UserId);
             var userRole = userRoles.FirstOrDefault();
             if (userRole == null)
-                throw new Exception("Kullanıcıya atanmış rol bulunamadı.");
+                throw new NotFoundException(ExceptionsResources.UserRoleNotFound);
 
             return new GetUserRoleQueryResponse
             {

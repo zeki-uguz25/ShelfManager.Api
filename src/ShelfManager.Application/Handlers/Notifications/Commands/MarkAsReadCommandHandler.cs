@@ -1,3 +1,6 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
@@ -18,26 +21,25 @@ namespace ShelfManager.Application.Handlers.Notifications.Commands
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly IAuthService _authService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MarkAsReadCommandHandler(INotificationRepository notificationRepository, IAuthService authService)
+        public MarkAsReadCommandHandler(INotificationRepository notificationRepository, IAuthService authService, IUnitOfWork unitOfWork)
         {
             _notificationRepository = notificationRepository;
             _authService = authService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<MarkAsReadCommandResponse> Handle(MarkAsReadCommandRequest request, CancellationToken cancellationToken)
         {
-            var userId= _authService.GetCurrentUserId();
+            var userId = _authService.GetCurrentUserId();
             var notification = await _notificationRepository.GetByIdAsync(request.Id);
-            if (notification == null)
-                throw new Exception("Bildirim bulunamadı.");
-            if (notification.UserId != userId)
-            {
-                throw new Exception("Bu Bildirim size ait değil.");
-            }
+            if (notification == null) throw new NotFoundException(ExceptionsResources.NotificationNotFound);
+            if (notification.UserId != userId) throw new BusinessException(ExceptionsResources.NotificationNotOwned);
 
             notification.IsRead = true;
             await _notificationRepository.UpdateAsync(notification);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new MarkAsReadCommandResponse { Message = "Bildirim okundu olarak işaretlendi." };
         }

@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Core.Persistence.EntityFrameworkCore.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Persistence.Context;
 using ShelfManager.Persistence.Repositories;
+using ShelfManager.Persistence.Seeders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +29,9 @@ namespace ShelfManager.Persistence
             services.AddScoped<IUserBookRepository, UserBookRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<IFineRepository, FineRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork<ShelfManagerDbContext>>();
+
+            services.AddHostedService<SeederHostedService>();
 
             return services;
         }

@@ -1,4 +1,5 @@
 ﻿using Core.Persistence.EntityFrameworkCore.BaseRepositories;
+using Core.Persistence.EntityFrameworkCore.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Persistence.EntityFrameworkCore;
@@ -28,18 +29,32 @@ public class EFEntityBaseRepository<T, TContext> : IRepository<T>//Amacı bu kod
     public async Task AddAsync(T entity)
     {
         await _context.Set<T>().AddAsync(entity);
-        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(T entity)
     {
         _context.Set<T>().Update(entity);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(T entity)
     {
         _context.Set<T>().Remove(entity);
-        await _context.SaveChangesAsync();
+    }
+    public async Task<PagedList<T>> GetPagedAsync(int pageNumber, int pageSize)
+    {
+        var totalCount = await _context.Set<T>().CountAsync();
+        var items = await _context.Set<T>()
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return new PagedList<T>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
     }
 }

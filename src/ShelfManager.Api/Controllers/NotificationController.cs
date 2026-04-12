@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShelfManager.Application.Handlers.Notifications.Commands;
 using ShelfManager.Application.Handlers.Notifications.Queries;
@@ -17,6 +18,7 @@ namespace ShelfManager.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetUserNotifications()
         {
             var result = await _mediator.Send(new GetUserNotificationsQueryRequest ());
@@ -24,6 +26,7 @@ namespace ShelfManager.Api.Controllers
         }
 
         [HttpPut("{id}/read")]
+        [Authorize]
         public async Task<IActionResult> MarkAsRead([FromRoute] Guid id)
         {
             var result = await _mediator.Send(new MarkAsReadCommandRequest { Id = id });

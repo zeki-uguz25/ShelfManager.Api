@@ -1,3 +1,6 @@
+using Core.Exception.Exceptions;
+using Core.Exception.Resources;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
@@ -18,28 +21,26 @@ namespace ShelfManager.Application.Handlers.Fines.Commands
     {
         private readonly IFineRepository _fineRepository;
         private readonly IAuthService _authService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PayFineCommandHandler(IFineRepository fineRepository,IAuthService authService)
+        public PayFineCommandHandler(IFineRepository fineRepository, IAuthService authService, IUnitOfWork unitOfWork)
         {
             _fineRepository = fineRepository;
             _authService = authService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<PayFineCommandResponse> Handle(PayFineCommandRequest request, CancellationToken cancellationToken)
         {
-            var userId= _authService.GetCurrentUserId();
+            var userId = _authService.GetCurrentUserId();
             var fine = await _fineRepository.GetByIdAsync(request.Id);
-            if (fine == null)
-                throw new Exception("Ceza kaydı bulunamadı.");
-
-            if (fine.UserId != userId)
-                throw new Exception("Bu ceza size ait değil.");
-
-            if (fine.IsPaid)
-                throw new Exception("Bu ceza zaten ödenmiş.");
+            if (fine == null) throw new NotFoundException(ExceptionsResources.FineNotFound);
+            if (fine.UserId != userId) throw new BusinessException(ExceptionsResources.FineNotOwned);
+            if (fine.IsPaid) throw new BusinessException(ExceptionsResources.FineAlreadyPaid);
 
             fine.IsPaid = true;
             await _fineRepository.UpdateAsync(fine);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new PayFineCommandResponse { Message = "Ceza başarıyla ödendi." };
         }

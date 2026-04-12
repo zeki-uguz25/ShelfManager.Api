@@ -1,6 +1,9 @@
-﻿using MediatR;
+﻿using Core.Persistence.EntityFrameworkCore.Pagination;
+using MediatR;
+using Microsoft.Extensions.Caching.Distributed;
 using ShelfManager.Application.Abstractions.Repositories;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using ShelfManager.Application.Constants;
+using System.Text.Json;
 
 namespace ShelfManager.Application.Handlers.Books.Queries;
 
@@ -21,42 +24,62 @@ public class GetAllBooksQuery
         public string? Description { get; set; }
         public Guid CategoryId { get; set; }
     }
-    //Entity'yi direkt döndürmüyoruz — sadece lazım olan alanları döndürüyoruz
-    //Buna DTO(Data Transfer Object) denir
 
-    public class GetAllBooksQueryRequest : IRequest<IEnumerable<GetAllBooksQueryResponse>>
-    {    //IRequest<...> — "cevap olarak bu tipi bekliyorum" demek
-
+    public class GetAllBooksQueryRequest : PagedRequest, IRequest<PagedList<GetAllBooksQueryResponse>>
+    {
     }
 
-    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQueryRequest, IEnumerable<GetAllBooksQueryResponse>>
-    {//"bu request gelince ben karşılarım" demek
+    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQueryRequest, PagedList<GetAllBooksQueryResponse>>
+    {
         private readonly IBookRepository _bookRepository;
+        private readonly IDistributedCache _cache;
 
-        public GetAllBooksQueryHandler(IBookRepository bookRepository)
+        public GetAllBooksQueryHandler(IBookRepository bookRepository, IDistributedCache cache)
         {
             _bookRepository = bookRepository;
+            _cache = cache;
         }
 
-        public async Task<IEnumerable<GetAllBooksQueryResponse>> Handle(GetAllBooksQueryRequest request, CancellationToken cancellationToken)
-        {//response da bir liste döndüğü için response geçen her yerde IEnumerable kullandık
-            var books = await _bookRepository.GetAllAsync();//tüm kitapları db den çeker.
+        public async Task<PagedList<GetAllBooksQueryResponse>> Handle(GetAllBooksQueryRequest request, CancellationToken cancellationToken)
+        {
+            var cacheKey = CacheKeys.Books(request.PageNumber, request.PageSize);
 
-            return books.Select(x => new GetAllBooksQueryResponse //Response da birden fazla dğer döndüğü için yani bir liste burda select kullandık.
-            {//her book entitiy si response dönüştürülür. Buna mapping denir.
-                Id = x.Id,
-                Name = x.Name,
-                Author = x.Author,
-                Publisher = x.Publisher,
-                Code = x.Code,
-                PageCount = x.PageCount,
-                StockCount = x.StockCount,
-                PublishYear = x.PublishYear,
-                Language = x.Language,
-                CoverImageUrl = x.CoverImageUrl,
-                Description = x.Description,
-                CategoryId = x.CategoryId
-            });
+            var cached = await _cache.GetStringAsync(cacheKey, cancellationToken);
+            if (cached != null)
+                return JsonSerializer.Deserialize<PagedList<GetAllBooksQueryResponse>>(cached)!;
+
+            var pagedBooks = await _bookRepository.GetPagedAsync(request.PageNumber, request.PageSize);
+
+            var result = new PagedList<GetAllBooksQueryResponse>
+            {
+                Items = pagedBooks.Items.Select(x => new GetAllBooksQueryResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Author = x.Author,
+                    Publisher = x.Publisher,
+                    Code = x.Code,
+                    PageCount = x.PageCount,
+                    StockCount = x.StockCount,
+                    PublishYear = x.PublishYear,
+                    Language = x.Language,
+                    CoverImageUrl = x.CoverImageUrl,
+                    Description = x.Description,
+                    CategoryId = x.CategoryId
+                }).ToList(),
+                TotalCount = pagedBooks.TotalCount,
+                PageNumber = pagedBooks.PageNumber,
+                PageSize = pagedBooks.PageSize
+            };
+
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result),
+                new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                },
+                cancellationToken);
+
+            return result;
         }
     }
 }
