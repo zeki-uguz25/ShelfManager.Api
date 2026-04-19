@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShelfManager.Tests.Unit.Handlers.Books
+namespace ShelfManager.Tests.Unit.Handlers.Books//
 {
     public class CreateBookCommandHandlerTests
     {
