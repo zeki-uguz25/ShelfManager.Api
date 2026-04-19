@@ -16,6 +16,8 @@ public static class ServiceRegistration
         });
 
         services.AddValidatorsFromAssembly(typeof(ServiceRegistration).Assembly);
+        services.AddAutoMapper(cfg => cfg.AddMaps(typeof(ServiceRegistration).Assembly));
+
 
         return services;
     }

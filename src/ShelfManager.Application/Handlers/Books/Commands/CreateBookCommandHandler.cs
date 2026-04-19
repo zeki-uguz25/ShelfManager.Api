@@ -1,4 +1,5 @@
-﻿using Core.Persistence.EntityFrameworkCore.UnitOfWork;
+﻿using AutoMapper;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -9,8 +10,7 @@ using ShelfManager.Domain.Entities;
 namespace ShelfManager.Application.Handlers.Books.Commands
 {
 
-    public class CreateBookCommand
-    {
+    
 
         public class CreateBookCommandResponse
         {
@@ -75,32 +75,21 @@ namespace ShelfManager.Application.Handlers.Books.Commands
             private readonly IBookRepository _bookRepository;
             private readonly IUnitOfWork _unitOfWork;
             private readonly IBookCacheService _bookCacheService;
+            private readonly IMapper _mapper;
 
-            public CreateBookCommandHandler(IBookRepository bookRepository, IUnitOfWork unitOfWork, IBookCacheService bookCacheService)
+            public CreateBookCommandHandler(IBookRepository bookRepository, IUnitOfWork unitOfWork, IBookCacheService bookCacheService, IMapper mapper)
             {
                 _bookRepository = bookRepository;
                 _unitOfWork = unitOfWork;
                 _bookCacheService = bookCacheService;
+                _mapper = mapper;
             }
 
             public async Task<CreateBookCommandResponse> Handle(CreateBookCommandRequest request, CancellationToken cancellationToken)
             {
-                var book = new Book
-                {
-                    Id = Guid.NewGuid(),
-                    Name = request.Name,
-                    Description = request.Description,
-                    PageCount = request.PageCount,
-                    Author = request.Author,
-                    StockCount = request.StockCount,
-                    TotalCount = request.TotalCount,
-                    PublishYear = request.PublishYear,
-                    Publisher = request.Publisher,
-                    Code = request.Code,
-                    Language = request.Language,
-                    CategoryId = request.CategoryId,
-                    CoverImageUrl = request.CoverImageUrl
-                };
+                var book = _mapper.Map<Book>(request); // request → entity mapping
+                book.Id = Guid.NewGuid(); //Tüm itemler doldurulmalı.
+                book.CreatedAt = DateTime.UtcNow;
 
                 await _bookRepository.AddAsync(book);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -109,5 +98,5 @@ namespace ShelfManager.Application.Handlers.Books.Commands
                 return new CreateBookCommandResponse { Id = book.Id };
             }
         }
-    }
+    
 }

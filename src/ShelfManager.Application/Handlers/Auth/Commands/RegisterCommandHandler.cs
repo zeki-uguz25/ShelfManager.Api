@@ -1,13 +1,14 @@
 ﻿using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
+using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
-using ShelfManager.Domain.Entities;
 using ShelfManager.Application.Handlers.Auth.Resources;
+using ShelfManager.Domain.Entities;
 using RolesEnum = ShelfManager.Domain.Enums.Roles;
-using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 
 namespace ShelfManager.Application.Handlers.Auth.Commands
 {
@@ -73,12 +74,11 @@ namespace ShelfManager.Application.Handlers.Auth.Commands
         public async Task<RegisterCommandResponse> Handle(RegisterCommandRequest request, CancellationToken cancellationToken)
         {
             var conflict = await _userRepository.GetByEmailAsync(request.Email);
-            if (conflict != null)
-                throw new BusinessException(ExceptionsResources.EmailAlreadyExists);
+            (conflict != null).IfTrueThrow(() => new BusinessException(ExceptionsResources.EmailAlreadyExists));
 
             var passwordHash = _hashingService.HashPassword(request.Password, out string salt);
             var role = await _roleRepository.GetByCodeAsync(nameof(RolesEnum.Member));
-            if (role == null) throw new NotFoundException(ExceptionsResources.MemberRoleNotFound);
+            (role == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.MemberRoleNotFound));
 
             var user = new User
             {

@@ -32,5 +32,13 @@ namespace ShelfManager.Api.Controllers
             var result = await _mediator.Send(new MarkAsReadCommandRequest { Id = id });
             return Ok(result);
         }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteNotification([FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new DeleteNotificationCommandRequest { Id = id });
+            return Ok(result);
+        }
     }
 }

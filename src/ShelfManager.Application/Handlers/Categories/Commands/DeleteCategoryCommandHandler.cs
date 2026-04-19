@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -29,8 +30,7 @@ namespace ShelfManager.Application.Handlers.Categories.Commands
         public async Task<DeleteCategoryCommandResponse> Handle(DeleteCategoryCommandRequest request, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id);
-            if (category == null)
-                throw new NotFoundException(ExceptionsResources.CategoryNotFound);
+            (category == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.CategoryNotFound));
 
             await _categoryRepository.DeleteAsync(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Text.Json;
 
-namespace Core.Exception
+namespace ShelfManager.Api.Middlewares
 {
     public class GlobalExceptionMiddleware
     {
@@ -30,10 +30,10 @@ namespace Core.Exception
         {
             var statusCode = exception switch
             {
-                NotFoundException      => HttpStatusCode.NotFound,
-                BusinessException      => HttpStatusCode.BadRequest,
-                UnauthorizedException  => HttpStatusCode.Unauthorized,
-                _                      => HttpStatusCode.InternalServerError
+                NotFoundException     => HttpStatusCode.NotFound,
+                BusinessException     => HttpStatusCode.BadRequest,
+                UnauthorizedException => HttpStatusCode.Unauthorized,
+                _                     => HttpStatusCode.InternalServerError
             };
 
             var message = exception is NotFoundException or BusinessException or UnauthorizedException

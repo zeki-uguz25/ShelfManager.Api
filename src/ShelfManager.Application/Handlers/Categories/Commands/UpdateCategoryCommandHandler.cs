@@ -1,5 +1,7 @@
-﻿using Core.Exception.Exceptions;
+﻿using AutoMapper;
+using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
@@ -32,20 +34,21 @@ namespace ShelfManager.Application.Handlers.Categories.Commands
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+        public UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<UpdateCategoryCommandResponse> Handle(UpdateCategoryCommandRequest request, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id);
-            if (category == null)
-                throw new NotFoundException(ExceptionsResources.CategoryNotFound);
+            (category == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.CategoryNotFound));
 
-            category.Name = request.Name;
+            _mapper.Map(request, category); // request alanlarını mevcut entity üzerine yazar
 
             await _categoryRepository.UpdateAsync(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
@@ -44,8 +45,7 @@ namespace ShelfManager.Application.Handlers.Roles.Commands
         public async Task<CreateRoleCommandResponse> Handle(CreateRoleCommandRequest request, CancellationToken cancellationToken)
         {
             var existing = await _roleRepository.GetByNameAsync(request.Name);
-            if (existing != null)
-                throw new BusinessException(ExceptionsResources.RoleAlreadyExists);
+            (existing != null).IfTrueThrow(() => new BusinessException(ExceptionsResources.RoleAlreadyExists));
 
             var role = new Role
             {

@@ -2,14 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShelfManager.Application.Handlers.Books.Commands;
 using ShelfManager.Application.Handlers.Books.Queries;
 using ShelfManager.Domain.Constants;
 using ShelfManager.Domain.Entities;
-using static ShelfManager.Application.Handlers.Books.Commands.CreateBookCommand;
-using static ShelfManager.Application.Handlers.Books.Commands.DeleteBookCommand;
-using static ShelfManager.Application.Handlers.Books.Commands.UpdateBookCommand;
-using static ShelfManager.Application.Handlers.Books.Queries.GetAllBooksQuery;
-using static ShelfManager.Application.Handlers.Books.Queries.GetBookByIdQuery;
 
 namespace ShelfManager.Api.Controllers
 {
@@ -75,6 +71,30 @@ namespace ShelfManager.Api.Controllers
         {
             await _mediator.Send(new DeleteBookCommandRequest { Id = id });
             return NoContent();
+        }
+
+        [HttpPost("{bookId}/borrow")]
+        [Authorize]
+        public async Task<IActionResult> BorrowBook([FromRoute] Guid bookId)
+        {
+            var result = await _mediator.Send(new BorrowBookCommandRequest { BookId = bookId });
+            return Ok(result);
+        }
+
+        [HttpPut("{id}/return")]
+        [Authorize]
+        public async Task<IActionResult> ReturnBook([FromRoute] Guid id, [FromBody] ReturnBookCommandRequest request)
+        {
+            request.Id = id;
+            var result = await _mediator.Send(request);
+            return Ok(result);
+        }
+        [HttpGet("my-books")]
+        [Authorize]
+        public async Task<IActionResult> GetAllUserBooks()
+        {
+            var result = await _mediator.Send(new GetUserBooksQueryRequest());
+            return Ok(result);
         }
 
 

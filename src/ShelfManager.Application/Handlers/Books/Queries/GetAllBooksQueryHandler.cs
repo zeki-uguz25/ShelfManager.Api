@@ -1,4 +1,5 @@
-﻿using Core.Persistence.EntityFrameworkCore.Pagination;
+﻿using AutoMapper;
+using Core.Persistence.EntityFrameworkCore.Pagination;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -7,8 +8,6 @@ using System.Text.Json;
 
 namespace ShelfManager.Application.Handlers.Books.Queries;
 
-public class GetAllBooksQuery
-{
     public class GetAllBooksQueryResponse
     {
         public Guid Id { get; set; }
@@ -33,18 +32,20 @@ public class GetAllBooksQuery
     {
         private readonly IBookRepository _bookRepository;
         private readonly IDistributedCache _cache;
+        private readonly IMapper _mapper;
 
-        public GetAllBooksQueryHandler(IBookRepository bookRepository, IDistributedCache cache)
+        public GetAllBooksQueryHandler(IBookRepository bookRepository, IDistributedCache cache, IMapper mapper)
         {
             _bookRepository = bookRepository;
             _cache = cache;
+            _mapper = mapper;
         }
 
         public async Task<PagedList<GetAllBooksQueryResponse>> Handle(GetAllBooksQueryRequest request, CancellationToken cancellationToken)
         {
             var cacheKey = CacheKeys.Books(request.PageNumber, request.PageSize);
 
-            var cached = await _cache.GetStringAsync(cacheKey, cancellationToken);
+            var cached = await _cache.GetStringAsync(cacheKey, cancellationToken);//rediste arar yoksa cached null olur
             if (cached != null)
                 return JsonSerializer.Deserialize<PagedList<GetAllBooksQueryResponse>>(cached)!;
 
@@ -52,21 +53,7 @@ public class GetAllBooksQuery
 
             var result = new PagedList<GetAllBooksQueryResponse>
             {
-                Items = pagedBooks.Items.Select(x => new GetAllBooksQueryResponse
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Author = x.Author,
-                    Publisher = x.Publisher,
-                    Code = x.Code,
-                    PageCount = x.PageCount,
-                    StockCount = x.StockCount,
-                    PublishYear = x.PublishYear,
-                    Language = x.Language,
-                    CoverImageUrl = x.CoverImageUrl,
-                    Description = x.Description,
-                    CategoryId = x.CategoryId
-                }).ToList(),
+                Items = _mapper.Map<List<GetAllBooksQueryResponse>>(pagedBooks.Items),
                 TotalCount = pagedBooks.TotalCount,
                 PageNumber = pagedBooks.PageNumber,
                 PageSize = pagedBooks.PageSize
@@ -77,9 +64,8 @@ public class GetAllBooksQuery
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
                 },
-                cancellationToken);
+                cancellationToken);//redise ekleme yapar
 
             return result;
         }
     }
-}

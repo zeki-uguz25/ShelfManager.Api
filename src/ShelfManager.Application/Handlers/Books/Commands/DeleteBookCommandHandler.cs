@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -7,8 +8,7 @@ using ShelfManager.Application.Abstractions.Services;
 
 namespace ShelfManager.Application.Handlers.Books.Commands
 {
-    public class DeleteBookCommand
-    {
+    
         public class DeleteBookCommandResponse
         {
         }
@@ -34,7 +34,7 @@ namespace ShelfManager.Application.Handlers.Books.Commands
             public async Task<DeleteBookCommandResponse> Handle(DeleteBookCommandRequest request, CancellationToken cancellationToken)
             {
                 var book = await _bookRepository.GetByIdAsync(request.Id);
-                if (book == null) throw new NotFoundException(ExceptionsResources.BookNotFound);
+                (book == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.BookNotFound));
 
                 await _bookRepository.DeleteAsync(book);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -43,5 +43,5 @@ namespace ShelfManager.Application.Handlers.Books.Commands
                 return new DeleteBookCommandResponse { };
             }
         }
-    }
+    
 }

@@ -1,8 +1,9 @@
+using ShelfManager.Domain.Common;
+
 namespace ShelfManager.Domain.Entities;
 
-public class Role
+public class Role : BaseEntity
 {
-    public Guid Id { get; set; }
     public string Code { get; set; } = null!;
     public string Name { get; set; } = null!;
     public ICollection<UserRole> UserRoles { get; set; } = [];

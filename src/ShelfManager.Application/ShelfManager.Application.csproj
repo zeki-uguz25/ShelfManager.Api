@@ -12,11 +12,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\Core.Persistence\Core.Persistence.csproj" />
+    <ProjectReference Include="..\core\Core.Extensions\Core.Extensions.csproj" />
     <ProjectReference Include="..\ShelfManager.Domain\ShelfManager.Domain.csproj" />
     <ProjectReference Include="..\Core.Exception\Core.Exception.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />
   </ItemGroup>

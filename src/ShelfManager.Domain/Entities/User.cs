@@ -1,8 +1,9 @@
+using ShelfManager.Domain.Common;
+
 namespace ShelfManager.Domain.Entities;
 
-public class User
+public class User : AuditableEntity
 {
-    public Guid Id { get; set; }
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
     public string? PhoneNumber { get; set; }
@@ -10,7 +11,6 @@ public class User
     public string PasswordSalt { get; set; } = null!;
     public bool IsBanned { get; set; }
     public bool IsActive { get; set; }
-    public DateTime CreatedAt { get; set; }
     public string? Address { get; set; }
 
     public ICollection<UserRole> UserRoles { get; set; } = [];

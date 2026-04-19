@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using ShelfManager.Domain.Common;
 using ShelfManager.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace ShelfManager.Persistence.Context
 {
@@ -23,6 +25,17 @@ namespace ShelfManager.Persistence.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShelfManagerDbContext).Assembly);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    var parameter = Expression.Parameter(entityType.ClrType, "e");
+                    var property = Expression.Property(parameter, nameof(AuditableEntity.IsDeleted));
+                    var filter = Expression.Lambda(Expression.Not(property), parameter);
+                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+                }
+            }
             base.OnModelCreating(modelBuilder);
         }
     }

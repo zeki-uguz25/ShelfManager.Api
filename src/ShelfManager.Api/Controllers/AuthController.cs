@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShelfManager.Api.Common;
 using ShelfManager.Application.Handlers.Auth.Commands;
 
 namespace ShelfManager.Api.Controllers
@@ -19,14 +20,14 @@ namespace ShelfManager.Api.Controllers
         public async Task<IActionResult> Login([FromBody] LoginCommandRequest request)
         {
             var result = await _mediator.Send(request);
-            return Ok(result);
+            return Ok(ApiResponse<LoginCommandResponse>.Ok(result));
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterCommandRequest request)
         {
             var result = await _mediator.Send(request);
-            return Ok(result);
+            return Ok(ApiResponse<RegisterCommandResponse>.Ok(result));
         }
     }
 }

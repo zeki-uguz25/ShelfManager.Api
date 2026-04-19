@@ -1,8 +1,9 @@
+using ShelfManager.Domain.Common;
+
 namespace ShelfManager.Domain.Entities;
 
-public class Category
+public class Category : BaseEntity
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
 
     public ICollection<Book> Books { get; set; } = [];

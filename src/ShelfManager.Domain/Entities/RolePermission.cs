@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ShelfManager.Domain.Common;
 
 namespace ShelfManager.Domain.Entities
 {
-    public class RolePermission
+    public class RolePermission : BaseEntity
     {
-        public Guid Id { get; set; }
         public Guid RoleId { get; set; }
         public Guid PermissionId { get; set; }
 

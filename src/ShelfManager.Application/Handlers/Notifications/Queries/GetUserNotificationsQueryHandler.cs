@@ -1,3 +1,4 @@
+using AutoMapper;
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
 using MediatR;
@@ -23,27 +24,22 @@ namespace ShelfManager.Application.Handlers.Notifications.Queries
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly IAuthService _authService;
+        private readonly IMapper _mapper;
 
-        public GetUserNotificationsQueryHandler(INotificationRepository notificationRepository, IAuthService authService)
+        public GetUserNotificationsQueryHandler(INotificationRepository notificationRepository, IAuthService authService, IMapper mapper)
         {
             _notificationRepository = notificationRepository;
             _authService = authService;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<GetUserNotificationsQueryResponse>> Handle(GetUserNotificationsQueryRequest request, CancellationToken cancellationToken)
         {
-
             var userId = _authService.GetCurrentUserId();
 
             var notifications = await _notificationRepository.GetAllByUserIdAsync(userId);
 
-            return notifications.Select(x => new GetUserNotificationsQueryResponse
-            {
-                Id = x.Id,
-                Message = x.Message,
-                IsRead = x.IsRead,
-                CreatedAt = x.CreatedAt
-            });
+            return _mapper.Map<IEnumerable<GetUserNotificationsQueryResponse>>(notifications);
         }
     }
 }

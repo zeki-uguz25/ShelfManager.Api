@@ -1,3 +1,4 @@
+using AutoMapper;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
@@ -31,20 +32,19 @@ namespace ShelfManager.Application.Handlers.Categories.Commands
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<CreateCategoryCommandResponse> Handle(CreateCategoryCommandRequest request, CancellationToken cancellationToken)
         {
-            var category = new Category
-            {
-                Id = Guid.NewGuid(),
-                Name = request.Name,
-            };
+            var category = _mapper.Map<Category>(request); // request → entity mapping
+            category.Id = Guid.NewGuid();
 
             await _categoryRepository.AddAsync(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

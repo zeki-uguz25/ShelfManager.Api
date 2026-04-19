@@ -1,5 +1,6 @@
 ﻿using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
@@ -43,12 +44,10 @@ namespace ShelfManager.Application.Handlers.Auth.Commands
         public async Task<LoginCommandResponse> Handle(LoginCommandRequest request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email.ToLower());
-            if (user == null)
-                throw new NotFoundException(ExceptionsResources.UserNotFound);
+            (user == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.UserNotFound));
 
             var isPasswordMatch = _hashingService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
-            if (!isPasswordMatch)
-                throw new BusinessException(ExceptionsResources.InvalidCredentials);
+            (!isPasswordMatch).IfTrueThrow(() => new BusinessException(ExceptionsResources.InvalidCredentials));
 
             var userRoles = await _userRoleRepository.GetByUserIdAsync(user.Id);
             var roles = userRoles.Select(r => r.Role.Name).ToList();

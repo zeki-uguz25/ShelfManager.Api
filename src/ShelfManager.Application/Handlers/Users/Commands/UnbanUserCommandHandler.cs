@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -30,11 +31,9 @@ namespace ShelfManager.Application.Handlers.Users.Commands
         public async Task<UnbanUserCommandResponse> Handle(UnbanUserCommandRequest request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.Id);
-            if (user == null)
-                throw new NotFoundException(ExceptionsResources.UserNotFound);
+            (user == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.UserNotFound));
 
-            if (!user.IsBanned)
-                throw new BusinessException(ExceptionsResources.UserNotBanned);
+            (!user.IsBanned).IfTrueThrow(() => new BusinessException(ExceptionsResources.UserNotBanned));
 
             user.IsBanned = false;
             await _userRepository.UpdateAsync(user);

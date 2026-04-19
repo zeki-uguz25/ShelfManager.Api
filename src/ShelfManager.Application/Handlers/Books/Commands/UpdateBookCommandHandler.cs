@@ -1,5 +1,7 @@
-﻿using Core.Exception.Exceptions;
+﻿using AutoMapper;
+using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
@@ -10,8 +12,7 @@ using ShelfManager.Application.Handlers.Books.Resources;
 namespace ShelfManager.Application.Handlers.Books.Commands
 {
 
-    public class UpdateBookCommand
-    {
+    
         public class UpdateBookCommandResponse
         {
             public Guid Id { get; set; }
@@ -77,31 +78,22 @@ namespace ShelfManager.Application.Handlers.Books.Commands
             private readonly IBookRepository _bookRepository;
             private readonly IUnitOfWork _unitOfWork;
             private readonly IBookCacheService _bookCacheService;
+            private readonly IMapper _mapper;
 
-            public UpdateBookCommandHandler(IBookRepository bookRepository, IUnitOfWork unitOfWork, IBookCacheService bookCacheService)
+            public UpdateBookCommandHandler(IBookRepository bookRepository, IUnitOfWork unitOfWork, IBookCacheService bookCacheService, IMapper mapper)
             {
                 _bookRepository = bookRepository;
                 _unitOfWork = unitOfWork;
                 _bookCacheService = bookCacheService;
+                _mapper = mapper;
             }
 
             public async Task<UpdateBookCommandResponse> Handle(UpdateBookCommandRequest request, CancellationToken cancellationToken)
             {
                 var book = await _bookRepository.GetByIdAsync(request.Id);
-                if (book == null) throw new NotFoundException(ExceptionsResources.BookNotFound);
+                (book == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.BookNotFound));
 
-                book.Name = request.Name;
-                book.Description = request.Description;
-                book.PageCount = request.PageCount;
-                book.Author = request.Author;
-                book.StockCount = request.StockCount;
-                book.TotalCount = request.TotalCount;
-                book.PublishYear = request.PublishYear;
-                book.Publisher = request.Publisher;
-                book.Code = request.Code;
-                book.Language = request.Language;
-                book.CategoryId = request.CategoryId;
-                book.CoverImageUrl = request.CoverImageUrl;
+                _mapper.Map(request, book); // request alanlarını mevcut entity üzerine yazar
 
                 await _bookRepository.UpdateAsync(book);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -109,6 +101,6 @@ namespace ShelfManager.Application.Handlers.Books.Commands
 
                 return new UpdateBookCommandResponse { Id = book.Id };
             }
-        }
+        
     }
 }

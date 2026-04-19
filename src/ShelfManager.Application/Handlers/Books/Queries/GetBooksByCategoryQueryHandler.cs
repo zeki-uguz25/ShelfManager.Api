@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -34,12 +35,9 @@ namespace ShelfManager.Application.Handlers.Books.Queries
             _unitOfWork = unitOfWork;
         }
         public async Task<IEnumerable<GetBooksByCategoryQueryResponse>> Handle(GetBooksByCategoryQueryRequest request,CancellationToken cancellationToken)
-        {//kategori id verildiðinde kitaplar listelenecek
-            var category= await _categoryRepository.GetByIdAsync(request.CategoryId);
-            if (category == null)
-            {
-                throw new NotFoundException(ExceptionsResources.CategoryNotFound);
-            }
+        {//kategori id verildiï¿½inde kitaplar listelenecek
+            var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
+            (category == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.CategoryNotFound));
 
             var books = await _bookRepository.GetBooksByCategory(category.Id);
 

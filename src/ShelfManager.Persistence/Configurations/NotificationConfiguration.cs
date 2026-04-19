@@ -20,7 +20,6 @@ namespace ShelfManager.Persistence.Configurations
             builder.HasOne(x => x.User)
                 .WithMany(x => x.Notifications)
                 .HasForeignKey(x => x.UserId);
-
         }
     }
 }

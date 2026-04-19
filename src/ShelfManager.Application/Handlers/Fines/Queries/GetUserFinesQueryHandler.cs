@@ -1,3 +1,4 @@
+using AutoMapper;
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
 using MediatR;
@@ -23,12 +24,14 @@ namespace ShelfManager.Application.Handlers.Fines.Queries
         private readonly IFineRepository _fineRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAuthService _authService;
+        private readonly IMapper _mapper;
 
-        public GetUserFinesQueryHandler(IFineRepository fineRepository, IUserRepository userRepository, IAuthService authService)
+        public GetUserFinesQueryHandler(IFineRepository fineRepository, IUserRepository userRepository, IAuthService authService, IMapper mapper)
         {
             _fineRepository = fineRepository;
             _userRepository = userRepository;
             _authService = authService;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<GetUserFinesQueryResponse>> Handle(GetUserFinesQueryRequest request, CancellationToken cancellationToken)
@@ -36,13 +39,7 @@ namespace ShelfManager.Application.Handlers.Fines.Queries
             var userId = _authService.GetCurrentUserId();
             var fines = await _fineRepository.GetAllByUserIdAsync(userId);
 
-            return fines.Select(x => new GetUserFinesQueryResponse
-            {
-                Id = x.Id,
-                Amount = x.Amount,
-                IsPaid = x.IsPaid,
-                CreatedAt = x.CreatedAt
-            });
+            return _mapper.Map<IEnumerable<GetUserFinesQueryResponse>>(fines);
         }
     }
 }

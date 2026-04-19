@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d957da23-b0fc-4433-aec4-66a3731b263c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +16,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,15 +26,5 @@
     <ProjectReference Include="..\Core.Exception\Core.Exception.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="..\ShelfManager.Deploy.Datas\roles.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>roles.json</Link>
-    </Content>
-    <Content Include="..\ShelfManager.Deploy.Datas\users.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>users.json</Link>
-    </Content>
-  </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -34,8 +35,8 @@ namespace ShelfManager.Application.Handlers.Notifications.Commands
         {
             var userId = _authService.GetCurrentUserId();
             var notification = await _notificationRepository.GetByIdAsync(request.Id);
-            if (notification == null) throw new NotFoundException(ExceptionsResources.NotificationNotFound);
-            if (notification.UserId != userId) throw new BusinessException(ExceptionsResources.NotificationNotOwned);
+            (notification == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.NotificationNotFound));
+            (notification!.UserId != userId).IfTrueThrow(() => new BusinessException(ExceptionsResources.NotificationNotOwned));
 
             notification.IsRead = true;
             await _notificationRepository.UpdateAsync(notification);

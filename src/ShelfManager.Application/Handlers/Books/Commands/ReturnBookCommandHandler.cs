@@ -1,12 +1,18 @@
-using Core.Exception.Exceptions;
+﻿using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
 using ShelfManager.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ShelfManager.Application.Handlers.UserBooks.Commands
+namespace ShelfManager.Application.Handlers.Books.Commands
 {
     public class ReturnBookCommandResponse
     {
@@ -49,17 +55,16 @@ namespace ShelfManager.Application.Handlers.UserBooks.Commands
         {
             var userId = _authService.GetCurrentUserId();
             var userBook = await _userBookRepository.GetByIdAsync(request.Id);
-            if (userBook == null) throw new NotFoundException(ExceptionsResources.UserBookNotFound);
-            if (userBook.UserId != userId) throw new BusinessException(ExceptionsResources.UserBookNotOwned);
+            (userBook == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.UserBookNotFound));
+            (userBook!.UserId != userId).IfTrueThrow(() => new BusinessException(ExceptionsResources.UserBookNotOwned));
 
             var book = await _bookRepository.GetByIdAsync(userBook.BookId);
             var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null) throw new NotFoundException(ExceptionsResources.UserNotFound);
-            if (book == null) throw new NotFoundException(ExceptionsResources.BookNotFound);
+            (user == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.UserNotFound));
+            (book == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.BookNotFound));
 
             var requestRating = request.Rating;
-            if (requestRating < 0 || requestRating > 5)
-                throw new BusinessException(ExceptionsResources.InvalidRating);
+            (requestRating < 0 || requestRating > 5).IfTrueThrow(() => new BusinessException(ExceptionsResources.InvalidRating));
 
             var fines = await _fineRepository.GetUnpaidFinesByUserIdAsync(userId);
             string? fineMessage = null;
@@ -73,7 +78,7 @@ namespace ShelfManager.Application.Handlers.UserBooks.Commands
                     UserBookId = userBook.Id,
                     Amount = 10,
                     IsPaid = false,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
                 };
                 await _fineRepository.AddAsync(fine);
             }
@@ -81,7 +86,7 @@ namespace ShelfManager.Application.Handlers.UserBooks.Commands
                 fineMessage = "Cezanız bulunmaktadır.";
 
             userBook.IsReturned = true;
-            book.StockCount++;
+            book!.StockCount++;
             userBook.Rating = request.Rating;
             userBook.Comment = request.Comment;
 

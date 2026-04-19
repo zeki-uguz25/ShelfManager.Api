@@ -1,5 +1,5 @@
-using Core.Exception;
 using Microsoft.OpenApi.Models;
+using ShelfManager.Api.Middlewares;
 using Serilog;
 using ShelfManager.Application;
 using ShelfManager.Infrastructure;
@@ -67,6 +67,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<RateLimitingMiddleware>();
 app.UseAuthentication();// gelen iste�in header'�ndaki token'� okur, do�rular, kullan�c�y� tan�mlar. Biz sadece "JWT kullanaca��z" dedik (AddJwtBearer), gerisini framework hallediyor.
 app.UseAuthorization();//kullan�c�n�n tan�mland�ktan sonra o endpoint'e eri�im yetkisi var m� kontrol eder. [Authorize] attribute'u bunu kullan�r.
 app.UseHttpsRedirection();

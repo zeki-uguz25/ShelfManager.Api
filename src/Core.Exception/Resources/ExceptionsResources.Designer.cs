@@ -48,6 +48,7 @@ namespace Core.Exception.Resources {
         // Book
         public static string BookNotFound => ResourceManager.GetString("BookNotFound", resourceCulture)!;
         public static string BookOutOfStock => ResourceManager.GetString("BookOutOfStock", resourceCulture)!;
+        public static string BookAlreadyBorrowed => ResourceManager.GetString("BookAlreadyBorrowed", resourceCulture)!;
 
         // UserBook
         public static string UserBookNotFound => ResourceManager.GetString("UserBookNotFound", resourceCulture)!;

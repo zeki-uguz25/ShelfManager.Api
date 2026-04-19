@@ -19,4 +19,12 @@ public class NotificationRepository : EFEntityBaseRepository<Notification, Shelf
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
     }
+
+    public Task SoftDeleteAsync(Notification notification)
+    {
+        notification.IsDeleted = true;
+        notification.DeletedAt = DateTime.UtcNow;
+        _context.Notifications.Update(notification);
+        return Task.CompletedTask;
+    }
 }

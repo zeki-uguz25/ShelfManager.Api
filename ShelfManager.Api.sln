@@ -21,9 +21,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfManager.Persistence", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Persistence", "src\core\Core.Persistence\Core.Persistence.csproj", "{3873D2F9-ABA8-474B-8196-F2D4C1C40212}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ShelfManager.Deploy.Datas", "src\ShelfManager.Deploy.Datas\ShelfManager.Deploy.Datas.shproj", "{C80F1A33-38CF-4B27-8B72-6513FC124386}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Exception", "src\Core.Exception\Core.Exception.csproj", "{1F979492-9ABD-C29A-4B6C-FC1536CB88F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A324A263-63D2-404A-A4D8-22CE0FE3B323}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfManager.Tests.Unit", "Tests\ShelfManager.Tests.Unit\ShelfManager.Tests.Unit.csproj", "{08E5C03C-D471-4049-A5D7-599533A06C2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{1F979492-9ABD-C29A-4B6C-FC1536CB88F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F979492-9ABD-C29A-4B6C-FC1536CB88F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F979492-9ABD-C29A-4B6C-FC1536CB88F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08E5C03C-D471-4049-A5D7-599533A06C2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08E5C03C-D471-4049-A5D7-599533A06C2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08E5C03C-D471-4049-A5D7-599533A06C2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08E5C03C-D471-4049-A5D7-599533A06C2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,13 +82,10 @@ Global
 		{FFCC5588-BFDE-40B3-BE1C-D68AA01635E8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8872326B-9586-4861-B0F6-8BD0BB18D9CD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{3873D2F9-ABA8-474B-8196-F2D4C1C40212} = {9960476F-3021-42EF-BECE-429F9E33747A}
-		{C80F1A33-38CF-4B27-8B72-6513FC124386} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{1F979492-9ABD-C29A-4B6C-FC1536CB88F2} = {9960476F-3021-42EF-BECE-429F9E33747A}
+		{08E5C03C-D471-4049-A5D7-599533A06C2A} = {A324A263-63D2-404A-A4D8-22CE0FE3B323}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BEE49987-934B-42A8-9EBE-5CF7DB4D76E0}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\ShelfManager.Deploy.Datas\ShelfManager.Deploy.Datas.projitems*{c80f1a33-38cf-4b27-8b72-6513fc124386}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

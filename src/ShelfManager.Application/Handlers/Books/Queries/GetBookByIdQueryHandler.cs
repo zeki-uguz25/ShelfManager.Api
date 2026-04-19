@@ -1,12 +1,13 @@
-﻿using Core.Exception.Exceptions;
+﻿using AutoMapper;
+using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
 namespace ShelfManager.Application.Handlers.Books.Queries
 {
-    public class GetBookByIdQuery
-    {
+    
 
         public class GetBookByIdQueryResponse
         {
@@ -32,39 +33,27 @@ namespace ShelfManager.Application.Handlers.Books.Queries
         public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQueryRequest, GetBookByIdQueryResponse?>
         {
             private readonly IBookRepository _bookRepository;
+            private readonly IMapper _mapper;
 
-            public GetBookByIdQueryHandler(IBookRepository bookRepository)
+            public GetBookByIdQueryHandler(IBookRepository bookRepository, IMapper mapper)
             {
                 _bookRepository = bookRepository;
+                _mapper = mapper;
             }
             public async Task<GetBookByIdQueryResponse?> Handle(GetBookByIdQueryRequest request, CancellationToken cancellationToken)
             {
                 var book = await _bookRepository.GetByIdAsync(request.Id);
-                if (book == null) throw new NotFoundException(ExceptionsResources.BookNotFound);
+                (book == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.BookNotFound));
 
                 //return book.Select(x => new GetBookByIdQueryResponse
                 //birden fazla book listelenseydi yukardaki gibi yazacaktık
 
-                return new GetBookByIdQueryResponse
-                {//her book entitiy si response dönüştürülür. Buna mapping denir.
-                    Id = book.Id,
-                    Name = book.Name,
-                    Author = book.Author,
-                    Publisher = book.Publisher,
-                    Code = book.Code,
-                    PageCount = book.PageCount,
-                    StockCount = book.StockCount,
-                    PublishYear = book.PublishYear,
-                    Language = book.Language,
-                    CoverImageUrl = book.CoverImageUrl,
-                    Description = book.Description,
-                    CategoryId = book.CategoryId
-                };
+                return _mapper.Map<GetBookByIdQueryResponse>(book); //her book entity si response a dönüştürülür. Buna mapping denir.
             }
 
         }
 
 
 
-    }
+    
 }

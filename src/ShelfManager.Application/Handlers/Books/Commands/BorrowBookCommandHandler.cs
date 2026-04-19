@@ -1,12 +1,18 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 using ShelfManager.Application.Abstractions.Services;
 using ShelfManager.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ShelfManager.Application.Handlers.UserBooks.Commands
+namespace ShelfManager.Application.Handlers.Books.Commands
 {
     public class BorrowBookCommandResponse
     {
@@ -28,39 +34,40 @@ namespace ShelfManager.Application.Handlers.UserBooks.Commands
         private readonly IUserRepository _userRepository;
         private readonly IAuthService _authService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IBookCacheService _bookCacheService;
 
         public BorrowBookCommandHandler(
             IUserBookRepository userBookRepository,
             IBookRepository bookRepository,
             IUserRepository userRepository,
             IAuthService authService,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IBookCacheService bookCacheService)
         {
             _userBookRepository = userBookRepository;
             _bookRepository = bookRepository;
             _userRepository = userRepository;
             _authService = authService;
             _unitOfWork = unitOfWork;
+            _bookCacheService = bookCacheService;
         }
 
         public async Task<BorrowBookCommandResponse> Handle(BorrowBookCommandRequest request, CancellationToken cancellationToken)
         {
             var userId = _authService.GetCurrentUserId();
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);//user burda atanýyor ama stok kontrolünden sonra kullanýlýyor
             var book = await _bookRepository.GetByIdAsync(request.BookId);
 
-            if (user == null) throw new NotFoundException(ExceptionsResources.UserNotFound);
-            if (book == null) throw new NotFoundException(ExceptionsResources.BookNotFound);
+            (book == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.BookNotFound));
 
-            if (book.StockCount <= 0)
-                throw new BusinessException(ExceptionsResources.BookOutOfStock);
-
-            if (user.IsBanned)
-                throw new BusinessException(ExceptionsResources.UserBanned);
+            (book!.StockCount <= 0).IfTrueThrow(() => new BusinessException(ExceptionsResources.BookOutOfStock));
+            user!.IsBanned.IfTrueThrow(() => new BusinessException(ExceptionsResources.UserBanned));
 
             var userBooks = await _userBookRepository.GetBorrowedBookCountByUserIdAsync(userId);
-            if (userBooks.Count() >= 3)
-                throw new BusinessException(ExceptionsResources.MaxBorrowLimitReached);
+            (userBooks.Count() >= 3).IfTrueThrow(() => new BusinessException(ExceptionsResources.MaxBorrowLimitReached));
+
+            var isConflict = userBooks.Any(x => x.BookId == book.Id);
+            isConflict.IfTrueThrow(() => new BusinessException(ExceptionsResources.BookAlreadyBorrowed));
 
             var userBook = new UserBook
             {
@@ -75,6 +82,7 @@ namespace ShelfManager.Application.Handlers.UserBooks.Commands
 
             await _bookRepository.UpdateAsync(book);
             await _userBookRepository.AddAsync(userBook);
+            await _bookCacheService.InvalidateAsync(cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new BorrowBookCommandResponse

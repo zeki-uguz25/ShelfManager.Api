@@ -1,8 +1,9 @@
+using ShelfManager.Domain.Common;
+
 namespace ShelfManager.Domain.Entities;
 
-public class Book
+public class Book : AuditableEntity
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public int PageCount { get; set; }

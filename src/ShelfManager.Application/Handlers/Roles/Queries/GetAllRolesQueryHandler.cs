@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
@@ -16,21 +17,19 @@ namespace ShelfManager.Application.Handlers.Roles.Queries
     public class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQueryRequest, IEnumerable<GetAllRolesQueryResponse>>
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IMapper _mapper;
 
-        public GetAllRolesQueryHandler(IRoleRepository roleRepository)
+        public GetAllRolesQueryHandler(IRoleRepository roleRepository, IMapper mapper)
         {
             _roleRepository = roleRepository;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<GetAllRolesQueryResponse>> Handle(GetAllRolesQueryRequest request, CancellationToken cancellationToken)
         {
             var roles = await _roleRepository.GetAllAsync();
 
-            return roles.Select(x => new GetAllRolesQueryResponse
-            {
-                Id = x.Id,
-                Name = x.Name
-            });
+            return _mapper.Map<IEnumerable<GetAllRolesQueryResponse>>(roles);
         }
     }
 }

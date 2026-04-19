@@ -1,5 +1,7 @@
-﻿using Core.Exception.Exceptions;
+﻿using AutoMapper;
+using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
 
@@ -18,25 +20,19 @@ namespace ShelfManager.Application.Handlers.Categories.Queries
     public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQueryRequest,  GetCategoryByIdQueryResponse?>
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public GetCategoryByIdQueryHandler(ICategoryRepository categoryRepository)
+        public GetCategoryByIdQueryHandler(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         public async Task<GetCategoryByIdQueryResponse?> Handle(GetCategoryByIdQueryRequest request,CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id);
-            if (category == null)
-            {
-                throw new NotFoundException(ExceptionsResources.CategoryNotFound);
-            }
-            return new GetCategoryByIdQueryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-            };
-
+            (category == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.CategoryNotFound));
+            return _mapper.Map<GetCategoryByIdQueryResponse>(category);
         }
     }
 }

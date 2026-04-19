@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShelfManager.Application.Handlers.UserBooks.Queries
+namespace ShelfManager.Application.Handlers.Books.Queries
 {
     public class GetUserBooksQueryResponse
     {
@@ -22,7 +22,7 @@ namespace ShelfManager.Application.Handlers.UserBooks.Queries
     {
     }
 
-    public class GetUserBooksQueryHandler : IRequestHandler<GetUserBooksQueryRequest, IEnumerable< GetUserBooksQueryResponse>>
+    public class GetUserBooksQueryHandler : IRequestHandler<GetUserBooksQueryRequest, IEnumerable<GetUserBooksQueryResponse>>
     {
         private readonly IUserBookRepository _userBookRepository;
         private readonly IUserRepository _userRepository;
@@ -40,24 +40,22 @@ namespace ShelfManager.Application.Handlers.UserBooks.Queries
             _authService = authService;
         }
 
-        public async Task<IEnumerable<GetUserBooksQueryResponse>> Handle(GetUserBooksQueryRequest request,CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetUserBooksQueryResponse>> Handle(GetUserBooksQueryRequest request, CancellationToken cancellationToken)
         {
             var userId = _authService.GetCurrentUserId();
-            
+
             var userBook = await _userBookRepository.GetAllBookByUserIdAsync(userId);
 
             return userBook.Select(x => new GetUserBooksQueryResponse
             {
-                BookId= x.BookId,
-                BookName=x.Book.Name,
-                BorrowDate=x.BorrowDate,
-                Rating=x.Rating,
-                IsReturned=x.IsReturned,
-                Comment=x.Comment
+                BookId = x.BookId,
+                BookName = x.Book.Name,
+                BorrowDate = x.BorrowDate,
+                Rating = x.Rating,
+                IsReturned = x.IsReturned,
+                Comment = x.Comment
 
             });
         }
     }
-
-    
 }

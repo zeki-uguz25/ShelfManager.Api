@@ -1,3 +1,4 @@
+using AutoMapper;
 using Core.Persistence.EntityFrameworkCore.Pagination;
 using MediatR;
 using ShelfManager.Application.Abstractions.Repositories;
@@ -22,10 +23,12 @@ namespace ShelfManager.Application.Handlers.Users.Queries
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQueryRequest, PagedList<GetAllUsersQueryResponse>>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public GetAllUsersQueryHandler(IUserRepository userRepository)
+        public GetAllUsersQueryHandler(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<PagedList<GetAllUsersQueryResponse>> Handle(GetAllUsersQueryRequest request, CancellationToken cancellationToken)
@@ -34,16 +37,7 @@ namespace ShelfManager.Application.Handlers.Users.Queries
 
             return new PagedList<GetAllUsersQueryResponse>
             {
-                Items = paged.Items.Select(x => new GetAllUsersQueryResponse
-                {
-                    Id = x.Id,
-                    FullName = x.FullName,
-                    Email = x.Email,
-                    PhoneNumber = x.PhoneNumber,
-                    IsBanned = x.IsBanned,
-                    IsActive = x.IsActive,
-                    CreatedAt = x.CreatedAt
-                }).ToList(),
+                Items = _mapper.Map<List<GetAllUsersQueryResponse>>(paged.Items),
                 TotalCount = paged.TotalCount,
                 PageNumber = paged.PageNumber,
                 PageSize = paged.PageSize

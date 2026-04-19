@@ -1,5 +1,6 @@
 using Core.Exception.Exceptions;
 using Core.Exception.Resources;
+using Core.Extensions;
 using Core.Persistence.EntityFrameworkCore.UnitOfWork;
 using FluentValidation;
 using MediatR;
@@ -54,12 +55,10 @@ namespace ShelfManager.Application.Handlers.UserRoles.Commands
         public async Task<AssignRoleCommandResponse> Handle(AssignRoleCommandRequest request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
-                throw new NotFoundException(ExceptionsResources.UserNotFound);
+            (user == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.UserNotFound));
 
             var role = await _roleRepository.GetByIdAsync(request.RoleId);
-            if (role == null)
-                throw new NotFoundException(ExceptionsResources.RoleNotFound);
+            (role == null).IfTrueThrow(() => new NotFoundException(ExceptionsResources.RoleNotFound));
 
             var existingRoles = await _userRoleRepository.GetByUserIdAsync(request.UserId);
             var existingRole = existingRoles.FirstOrDefault();
@@ -81,7 +80,7 @@ namespace ShelfManager.Application.Handlers.UserRoles.Commands
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new AssignRoleCommandResponse { Message = $"Kullanıcıya '{role.Name}' rolü atandı." };
+            return new AssignRoleCommandResponse { Message = $"Kullanıcıya '{role!.Name}' rolü atandı." };
         }
     }
 }

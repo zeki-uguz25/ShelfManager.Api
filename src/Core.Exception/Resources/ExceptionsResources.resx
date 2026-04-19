@@ -120,6 +120,9 @@
 	<data name="BookOutOfStock" xml:space="preserve">
 		<value>This book is not available in stock.</value>
 	</data>
+	<data name="BookAlreadyBorrowed" xml:space="preserve">
+		<value>You have already borrowed this book.</value>
+	</data>
 
 	<!-- UserBook -->
 	<data name="UserBookNotFound" xml:space="preserve">
