@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\core\Core.Exception\Core.Exception.csproj" />
     <ProjectReference Include="..\core\Core.Persistence\Core.Persistence.csproj" />
     <ProjectReference Include="..\core\Core.Extensions\Core.Extensions.csproj" />
     <ProjectReference Include="..\ShelfManager.Domain\ShelfManager.Domain.csproj" />
-    <ProjectReference Include="..\Core.Exception\Core.Exception.csproj" />
   </ItemGroup>
 
   <ItemGroup>

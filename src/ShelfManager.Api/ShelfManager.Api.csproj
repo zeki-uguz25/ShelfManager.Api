@@ -20,10 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\core\Core.Exception\Core.Exception.csproj" />
     <ProjectReference Include="..\ShelfManager.Application\ShelfManager.Application.csproj" />
     <ProjectReference Include="..\ShelfManager.Persistence\ShelfManager.Persistence.csproj" />
     <ProjectReference Include="..\ShelfManager.Infrastructure\ShelfManager.Infrastructure.csproj" />
-    <ProjectReference Include="..\Core.Exception\Core.Exception.csproj" />
   </ItemGroup>
 
 
